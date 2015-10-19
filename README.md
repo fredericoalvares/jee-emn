@@ -18,7 +18,8 @@
 * [Glassfish 4.0](https://glassfish.java.net) 
 * [Documentation Maven 3.x](https://maven.apache.org/ref/3.0/)
 
-## Excercices
+
+## Exercices
 
 1. [**Au préalable** : Mise en place de l'environnement de développement](https://github.com/fredericoalvares/jee-emn/blob/master/environnement/environment.md)
 2. Concevoir une couche de données/persistence avec *Java Persistence API*
