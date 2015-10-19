@@ -20,7 +20,7 @@
 
 ## Excercices
 
-1. [**Au préalable** : Mise en place de l'environnement de développement](./environnement/environnement.md)
+1. [**Au préalable** : Mise en place de l'environnement de développement](https://github.com/fredericoalvares/jee-emn/blob/master/environnement/environment.md)
 2. Concevoir une couche de données/persistence avec *Java Persistence API*
 3. Concevoir une couche métier avec *Entreprise Java Beans*
 4. Concevoir une couche de présentation avec *Java Server Faces*  
