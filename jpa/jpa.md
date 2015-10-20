@@ -65,6 +65,7 @@ Nous avons bésoin de créer (au moins) une table pour stocker les informations 
         illustrations BOOLEAN,
         PRIMARY KEY (id)
   );
+  ```
   3. Insérez quelques livres dans la base de données
   ```sql
    INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) 
