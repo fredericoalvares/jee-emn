@@ -19,8 +19,8 @@ Pour mettre en place l'environnement de travail, nous avons besoin de :
   * [Mac OS X 64bit](http://www.eclipse.org/downloads/download.php?file=/oomph/epp/mars/R1a/eclipse-inst-mac64.tar.gz)
   * [Linux 32bit](http://www.eclipse.org/downloads/download.php?file=/oomph/epp/mars/R1a/eclipse-inst-linux32.tar.gz)
   * [Linux 64bit](http://www.eclipse.org/downloads/download.php?file=/oomph/epp/mars/R1a/eclipse-inst-linux64.tar.gz)
-* Maven 3.x : pour pouvoir compiler, tester, déployer nos projets 
-  * ===Pas besoin de télécharger car c'est déjà intégré dans Eclipse===
+* Maven 3.x : pour pouvoir compiler et exécuter nos projets 
+  * **Pas besoin de télécharger car c'est déjà intégré dans Eclipse**
 * [HyperSQLDB 2.3](http://sourceforge.net/projects/hsqldb/files/hsqldb/hsqldb_2_3/) : comme système de gestion de base de données
 
 
@@ -86,34 +86,43 @@ Maven dont notre projet JEE dépendra pour pouvoir être compilé déployé ou m
 exécuté. Pour ce faire, ajouter l'extrait ci-dessous au fichier pom.xml.  
 
 ```xml
-<project ...>
+<project>
 ...
-
 <dependency>
    <groupId>org.glassfish.main.extras</groupId>
    <artifactId>glassfish-embedded-all</artifactId>
    <version>4.0</version>
    <scope>provided</scope>
 </dependency>
+<dependency>
+   <groupId>org.eclipse.persistence</groupId>
+   <artifactId>org.eclipse.persistence.jpa</artifactId>
+   <version>2.5.0</version>
+</dependency>
+<dependency>
+   <groupId>org.hsqldb</groupId>
+   <artifactId>hsqldb</artifactId>
+   <version>2.3.1</version>
+</dependency>
 
+</project>
+
+```
+<!--
 <dependency>
    <groupId>junit</groupId>
    <artifactId>junit</artifactId>
    <version>4.11</version>
    <scope>test</scope>
 </dependency>
+-->
 
-</project>
+Le projet `glassfish-embedded-all` comprend Glassfish 4.0 (l'implementation de
+référence de JEE) et toutes ses dépendances. Le projet `org.eclipse.persistence.jpa`
+sera utile lors de l'utilisation de *Java Persistence API*. Quand au projet `hsqldb`, 
+ceci contient le driver nécessaire pour accéder à une base de données HyperSQL DB.    
 
-```
-
-Le projet *glassfish-embedded-all* comprend Glassfish 4.0 (l'implementation de
-référence de JEE) et toutes ses dépendances. Quand au projet *junit*, ceci permet de 
-réaliser et exécuter des testes unitaires et d'intégration. 
-
-
-
-## Plug-ins pour la compilation, le teste et l'exécution 
+## Plugins pour la compilation et l'exécution 
 
 
 Pour pouvoir compiler nôtre projet, nous pouvons nous appuyer sur un plug-in *maven-compiler-plugin*, 
@@ -161,9 +170,11 @@ Nous pouvons également s'appuyer sur *exec-maven-plugin* pour exécuter un code
      ...     
 </project>
 ```
-
+<!--
 Pour effectué des testes (unitaires, d'intégration, etc.), nous pouvons
 utiliser le plug-in *maven-failsafe-plugin*.
+
+
 
 ```xml
 <build>
@@ -186,6 +197,8 @@ utiliser le plug-in *maven-failsafe-plugin*.
      ...
 </project>
 ```
+-->
+
 Enfin, nous aurons aussi besoin de lancer un serveur web *embedded* (c-a-d dans
 le même processus de la JVM) contenant tous les modules (pages de presentation
 web, entities classes, EJBs, etc.). Pour ce faire, nous allons nous appuyer sur
