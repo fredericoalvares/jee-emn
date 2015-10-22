@@ -520,7 +520,10 @@ Le fichier ci-dessous montre un exemple un peu plus élaboré.
 </persistence>
 ```
 
- 
-* mettre a jour pom.xml jdbc hsqldb dans environnement
-* mettre a jour Main messages plus claires
-* persistence.xml -> plus de persistence-units, proprietes, etc.
+## Lecture suggerée
+
+1. Beginning Java EE. Antônio Gonçalves.
+  1. Chapître 4 : Java Persistence API
+  2. Chapître 5 : Object-Relational Mapping
+  3. Chapter 6 : Managing persistent ObjeCts 
+2. [JSR 338: JavaTM Persistence 2.1](https://jcp.org/en/jsr/detail?id=338)
