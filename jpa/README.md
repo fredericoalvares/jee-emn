@@ -1,20 +1,20 @@
 # Tutoriel 2 : *Java Persistence API*
 
-Ce tutoriel a pour but aborder les aspects nécessaires pour la mise en œuvre de la couche
+Ce tutoriel a pour but d'aborder les aspects nécessaires pour la mise en œuvre de la couche
 de données/persistance d'une application JEE. 
 
 ## Le SGBD
 
-Nous allons utiliser HyperSQL BD comme SGBD. Si ce n'est pas encore fait, téléchargez le [ici](http://sourceforge.net/projects/hsqldb/files/hsqldb/hsqldb_2_3/).
+Nous allons utiliser HyperSQL DB comme SGBD. Si ce n'est pas encore fait, téléchargez le [ici](http://sourceforge.net/projects/hsqldb/files/hsqldb/hsqldb_2_3/).
 
 
 ### Lancement
 
 Une fois téléchargé, décompressez le fichier .zip, lancez le Terminal et lancez HSQL DB en mode serveur, comme indiqué ci-dessous.
 
-** Attention : vous devez modifier le chemin `~/Desktop/hsqldb-2.2.3/hsqldb` par le chemin du répertoire dans lequel vous avez téléchargé et décompresser le fichier .zip.**
+**Attention :** vous devez modifier le chemin `~/Desktop/hsqldb-2.2.3/hsqldb` par le chemin du répertoire dans lequel vous avez téléchargé et décompresser le fichier .zip.
 
-```
+```shell
 $ cd ~/Desktop/hsqldb-2.2.3/hsqldb
 $ java -cp lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 bookStore
 ```
@@ -40,7 +40,7 @@ Vous devrez avoir une sortie à peu près comme ceci :
 [Server@372f7a8d]: From command line, use [Ctrl]+[C] to abort abruptly
 ```
 
-### Création des tables
+<!-- ### Création des tables
 
 Nous avons bésoin de créer (au moins) une table pour stocker les informations des livres de notre *Bookstore*. Nous pouvons utiliser l'interface graphique *DBeaver* pour cet effet.  
 
@@ -75,14 +75,14 @@ Nous avons bésoin de créer (au moins) une table pour stocker les informations 
    INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE)
              VALUES(1010, 'The Lord of the Rings', 'One ring to rule them all', 0, '9012-3456', 222, 23);
   ```
-
+-->
 
 
 
 ## Entités 
 
-L'objectif de ce tutoriel est d'établir un lien entre les classes *JavaBean* et
-les entités (tables) correspondants de la base de données. 
+Nous voulons établir un lien entre les classes/objets Java (*JavaBean*) et
+les tables correspondants de la base de données. 
 
 ### Création d'un JavaBean représentant un Livre
 
@@ -99,7 +99,6 @@ les entités (tables) correspondants de la base de données.
 3. Implémentez un constructeur vide et un autre prennant en entrée tous la valeur de tous les attributs 
 4. Implémentez des méthodes *getters* et *setters* pour chaqu'un des attributs
 5. Implémentez une méthode *toString*
-
 
 
 ### Meta-données et Annotations 
@@ -251,7 +250,25 @@ public class Book {
 }
 ``` 
 
-## Configuration JPA
+
+## Données initiales
+
+Parfois, nous avons besoin de charger la base de donnée afin de pouvoir la tester. Pour ce faire, créez 
+un fichier `insert.sql` dans `src/main/resources` contenant le script SQL ci-dessous.
+
+  ```sql
+   INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) 
+             VALUES(1000, 'Beginning Java EE 6', 'Best Java EE book ever', 1, '1234-5678', 450, 49);
+   INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) 
+             VALUES(1001, 'Beginning Java EE 7', 'No, this is the best ', 1, '5678-9012', 550, 53);
+   INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE)
+             VALUES(1010, 'The Lord of the Rings', 'One ring to rule them all', 0, '9012-3456', 222, 23);
+  ```
+
+
+
+## Unités de persistance / configuration JPA
+
 
 1. Créez un sous-répertoire `META-INF` dans `src/main/resources`. Ce répertoire hébergera les méta-données sous forme de fichier XML.
 2. Créez un fichier `persistence.xml` contenant au moins une *persistence-unit*.
@@ -263,24 +280,32 @@ public class Book {
         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
                             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd" version="2.1">
         
-   <persistence-unit name="bookstore-hsqldb" transaction-type="RESOURCE_LOCAL">
+   <persistence-unit name="bookstore-hsqldb">
       <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
       <class>fr.emn.gsi2015.bookstore.persistence.Book</class>
       <properties>
+         <property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />
          <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
          <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:hsql://localhost/bookStoreDB;shutdown=true" />
          <property name="javax.persistence.jdbc.user" value="SA" />
+         <property name="javax.persistence.jdbc.password" value="" />
+         <property name="javax.persistence.sql-load-script-source" value="insert.sql" />
       </properties>
    </persistence-unit>        
 </persistence>
 ```
 
-Comme vous avez pu remarqué, la *persistence-unit* contient des informations pour acceder à notre 
-base de données *bookStoreDB* sur HSQLDB. 
+Comme vous avez pu remarqué, la *persistence-unit* contient des informations
+pour accéder à notre base de données *bookStoreDB* sur HSQLDB. Il faut
+souligner que la propriété
+`javax.persistence.schema-generation.database.action=drop-and-create`
+précise que le schéma de la base de données sera supprimé et créée au début de
+l'exécution de l'application en question. Quand à `javax.persistence.sql-load-script-source=insert.sql`, cette
+propriété permet d'exécuter un script pour charger la base de données. 
 
 ## Gestionnaire d'entités
 
-Pour pouvior manipuler les entités (créer, mettre à jour, supprimer, consulter)
+Pour pouvoir manipuler les entités (créer, mettre à jour, supprimer, consulter)
 dans la base de données avec JPA, il suffit d'utiliser le gestionnaire d'entités 
 (`EntityManager`). A partir de la fabrique `EntityManagerFactory` nous avons accès 
 à un gestionnaire d'entités.   
@@ -332,7 +357,7 @@ tx.commit();
 
 #### Classe principale
 
-Nous allons créer une classe principale permettant l'execution de quelques exemples ci-dessus. 
+Nous allons créer une classe principale permettant l'exécution de quelques exemples ci-dessus. 
 
 
 ```java
@@ -433,9 +458,9 @@ Nous allons utiliser Maven pour compiler et exécuter notre classe principale. P
 1. Ligne de commande : `mvn clean compile exec:java -Dexec.mainClass=fr.emn.gsi2015.bookstore.persistence.Main` depuis la racine du projet.  
 2. Sur Eclipse : 
   1. Clique droit sur le projet > Run As > Maven build... ![alt text](./compile_and_run1.png)
-  2. Donnez un nom à cette configuration (ex. : bookstore compile and run)
+  2. Donnez un nom à cette configuration (ex. : bookstore compile and run - Persistance )
   3. Précisez les *Goals* de Maven : `clean compile exec:java` ![alt text](./compile_and_run2.png)
-  4. Cliquez sur *Add...* pour ajouter un parametre. Ensuite entrez la valeur `fr.emn.gsi2015.jpa.Main` pour le parametre `exec.mainClass`. Ceci (dans ce cas-là notre classe principale) est utilisé par le plugin *exec-maven-plugin*.                
+  4. Cliquez sur *Add...* pour ajouter un paramètre. Ensuite entrez la valeur `fr.emn.gsi2015.jpa.Main` pour le paramètre `exec.mainClass`. Ceci (dans ce cas notre classe principale) est utilisé par le plugin *exec-maven-plugin*.                
 
  ![alt text](./compile_and_run3.png)
   5. Cliquez sur *Apply* et puis sur *Run*
@@ -473,11 +498,12 @@ Book [id=1011, title=H2G2, price=13.4, description=The Hitchhiker's Guide to the
 ## Observations
 
 Par des soucis de simplicité, nous avons fourni une version minimaliste du
-fichier de meta-données `persistence.xml`. Nous aurions pu mieux exploiter des
+fichier de méta-données `persistence.xml`. 
+<!-- Nous aurions pu mieux exploiter des
 propriétés telles que `javax.persistence.schema-generation.database.action` ou
 `javax.persistence.sql-load-script-source` permettant le génération automatique
-du schéma de la base de données à partir de la définition des annotations JPA.
-Aussi, nous aurions pu décrire plusieurs *persistence-unit*, par exemple,
+du schéma de la base de données à partir de la définition des annotations JPA.-->
+Nous aurions pu décrire plusieurs *persistence-unit*, par exemple,
 chacun pour une base de donnée différente.
 
 Le fichier ci-dessous montre un exemple un peu plus élaboré.
@@ -490,7 +516,7 @@ Le fichier ci-dessous montre un exemple un peu plus élaboré.
         http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd" version="2.1">
         
         
-        <persistence-unit name="bookstore-hsqldb" transaction-type="RESOURCE_LOCAL">
+        <persistence-unit name="bookstore-hsqldb">
              <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
              <class>fr.emn.gsi2015.bookstore.persistence.Book</class>
              <properties>
@@ -502,25 +528,25 @@ Le fichier ci-dessous montre un exemple un peu plus élaboré.
                  <property name="javax.persistence.sql-load-script-source" value="insert.sql" />
              </properties>
         </persistence-unit>
-        <persistence-unit name="bookstore-derby" transaction-type="RESOURCE_LOCAL">
-                <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-                <class>fr.emn.gsi2015.bookstore.persistence.Book</class>
-                <properties>
-                        <property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />
-                        <property name="javax.persistence.schema-generation.database.target"        value="database-and-scripts" />
-                        <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver" />
-                        <property name="javax.persistence.jdbc.url"
+        <persistence-unit name="bookstore-derby">
+             <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+             <class>fr.emn.gsi2015.bookstore.persistence.Book</class>
+             <properties>
+                 <property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />
+                 <property name="javax.persistence.schema-generation.database.target"        value="database-and-scripts" />
+                 <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver" />
+                 <property name="javax.persistence.jdbc.url"
                                 value="jdbc:derby://localhost:1527/bookStoreDB;create=true" />
-                        <property name="javax.persistence.jdbc.user" value="APP" />
-                        <property name="javax.persistence.jdbc.password" value="APP" />
-                        <property name="javax.persistence.sql-load-script-source" value="insert.sql" />
-                </properties>
+                 <property name="javax.persistence.jdbc.user" value="APP" />
+                 <property name="javax.persistence.jdbc.password" value="APP" />
+                 <property name="javax.persistence.sql-load-script-source" value="insert.sql" />
+             </properties>
         </persistence-unit>
         
 </persistence>
 ```
 
-## Lecture suggerée
+## Ressources
 
 1. Beginning Java EE. Antônio Gonçalves.
   1. Chapître 4 : Java Persistence API
