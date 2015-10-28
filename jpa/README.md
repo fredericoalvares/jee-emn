@@ -16,7 +16,7 @@ Une fois téléchargé, décompressez le fichier .zip, lancez le Terminal et lan
 
 ```shell
 $ cd ~/Desktop/hsqldb-2.2.3/hsqldb
-$ java -cp lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 bookStore
+$ java -cp lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 bookStoreDB
 ```
 
 La commande *java* ci-dessus lance HSQL DB en mode serveur et crée une base de
@@ -126,7 +126,7 @@ public class Book {
 
 Quand à l'annotation `@Id` elle sert à préciser qu'un attribut correspond à un
 identifiant unique (e.g., clé primaire). `@GeneratedValue` précise que cette
-valeur est généré automatiquement par le SGBD. Nous pouvons aussi utiliser
+valeur est généré automatiquement par le SGBD. Nous pourrions aussi utiliser
 l'annotation `@Column` pour préciser le nom d'un attribut ou pour préciser de
 contraintes liées à la base de données. 
 
@@ -256,13 +256,10 @@ public class Book {
 Parfois, nous avons besoin de charger la base de donnée afin de pouvoir la tester. Pour ce faire, créez 
 un fichier `insert.sql` dans `src/main/resources` contenant le script SQL ci-dessous.
 
-  ```sql
-   INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) 
-             VALUES(1000, 'Beginning Java EE 6', 'Best Java EE book ever', 1, '1234-5678', 450, 49);
-   INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) 
-             VALUES(1001, 'Beginning Java EE 7', 'No, this is the best ', 1, '5678-9012', 550, 53);
-   INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE)
-             VALUES(1010, 'The Lord of the Rings', 'One ring to rule them all', 0, '9012-3456', 222, 23);
+```sql
+INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) VALUES(1000, 'Beginning Java EE 6', 'Best Java EE book ever', 1, '1234-5678', 450, 49);
+INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) VALUES(1001, 'Beginning Java EE 7', 'No, this is the best ', 1, '5678-9012', 550, 53);
+INSERT INTO BOOK(ID, TITLE, DESCRIPTION, ILLUSTRATIONS, ISBN, NBOFPAGE, PRICE) VALUES(1010, 'The Lord of the Rings', 'One ring to rule them all', 0, '9012-3456', 222, 23);
   ```
 
 
