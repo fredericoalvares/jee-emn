@@ -1,11 +1,12 @@
-# Tutoriel 1 : Mise en place de l'environnement de développement
+# Tutoriel 1 : Mise en place de l'environnement de développement JEE
 
-Ce tutoriel a pour but montre la démarche nécessaire pour mettre en place un environnement de travail permettant 
-la compilation, test et exécution des applications JEE avec Eclipse et Maven.
+Ce tutoriel a pour but de montrer la démarche nécessaire pour mettre en place
+un environnement de travail permettant la compilation, le packaging, le déploiement, 
+et l'exécution des applications JEE avec Eclipse et Maven.
 
 **Attention : Maven est un outil très puissant mais assez compliqué à première
 vue, n'essayez pas de tout comprendre. Le but ici n'est pas de maîtriser Maven,
-mais de faciliter la gestion de dépendances, compilation et exécution de nos
+mais de faciliter la gestion de dépendances, la compilation et l'exécution de nos
 applications.** 
 
 ## Outils à télécharger
@@ -20,7 +21,7 @@ Pour mettre en place l'environnement de travail, nous avons besoin de :
   * [Linux 32bit](http://www.eclipse.org/downloads/download.php?file=/oomph/epp/mars/R1a/eclipse-inst-linux32.tar.gz)
   * [Linux 64bit](http://www.eclipse.org/downloads/download.php?file=/oomph/epp/mars/R1a/eclipse-inst-linux64.tar.gz)
 * Maven 3.x : pour pouvoir compiler et exécuter nos projets 
-  * **Pas besoin de télécharger car c'est déjà intégré dans Eclipse**
+  * **Pas besoin de le télécharger car c'est déjà intégré dans Eclipse**
 * [HyperSQLDB 2.3](http://sourceforge.net/projects/hsqldb/files/hsqldb/hsqldb_2_3/) : comme système de gestion de base de données
 
 
@@ -40,7 +41,9 @@ Pour mettre en place l'environnement de travail, nous avons besoin de :
 
 ### Le fichier web.xml 
 
-Vous avez du remarqué qu'il y a une erreur dans le projet. Cela est dû au fait que certains répertoires/fichiers requises pour la compilation d'un projet Web JEE ne sont pas présent. Nous devons donc ré-structurer le projet.
+Vous avez dû remarqué qu'il y a une erreur dans le projet. Cela est dû au fait
+que certains répertoires/fichiers requis pour la compilation d'un projet Web
+JEE ne sont pas présent. Nous devons donc ré-structurer le projet.
 
 1. Créez un répertoire src/main/webapp/WEB-INF
 2. Créez un fichier src/main/webapp/WEB-INF/web.xml contenant le code suivant
@@ -60,9 +63,12 @@ Après ces changements, l'erreur précédent doit disparaître.
 
 ### Le fichier pom.xml
 
-Maven a été conçu pour automatiser des tâches de développement telles que la compilation, packaging, installation, déploiement, etc., tout en prenant en compte les dépendances entre les projets. Toutes les configurations permettant décrire d'un projet Maven sont décrites dans le fichier pom.xml. 
+Maven a été conçu pour automatiser des tâches de développement telles que la
+compilation, le packaging, l'installation, le déploiement, etc., tout en prenant en
+compte les dépendances entre les projets. Toutes les configurations nécessaires 
+d'un projet Maven sont décrites dans le fichier pom.xml. 
 
-Vous devez avoir une version à peu près comme ceci : 
+Vous devriez avoir une version comme ceci : 
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
@@ -81,9 +87,9 @@ Vous devez avoir une version à peu près comme ceci :
 
 #### Dépendances 
    
-Nous allons maintenant ajouter des références à d'autres projets (plugins)
-Maven dont notre projet JEE dépendra pour pouvoir être compilé déployé ou même
-exécuté. Pour ce faire, ajouter l'extrait ci-dessous au fichier pom.xml.  
+Nous allons maintenant ajouter des références à d'autres projets (*plugins*)
+Maven dont notre projet JEE dépendra pour pouvoir être compilé, déployé ou même
+exécuté. Pour ce faire, ajoutez l'extrait ci-dessous au fichier pom.xml.  
 
 ```xml
 <project>
@@ -92,7 +98,7 @@ exécuté. Pour ce faire, ajouter l'extrait ci-dessous au fichier pom.xml.
    <groupId>org.glassfish.main.extras</groupId>
    <artifactId>glassfish-embedded-all</artifactId>
    <version>4.0</version>
-   <scope>provided</scope>
+   <scope>${glassfish.scope}</scope>
 </dependency>
 <dependency>
    <groupId>org.eclipse.persistence</groupId>
@@ -104,7 +110,6 @@ exécuté. Pour ce faire, ajouter l'extrait ci-dessous au fichier pom.xml.
    <artifactId>hsqldb</artifactId>
    <version>2.3.1</version>
 </dependency>
-
 </project>
 
 ```
@@ -117,16 +122,18 @@ exécuté. Pour ce faire, ajouter l'extrait ci-dessous au fichier pom.xml.
 </dependency>
 -->
 
-Le projet `glassfish-embedded-all` comprend Glassfish 4.0 (l'implementation de
-référence de JEE) et toutes ses dépendances. Le projet `org.eclipse.persistence.jpa`
-sera utile lors de l'utilisation de *Java Persistence API*. Quand au projet `hsqldb`, 
-ceci contient le driver nécessaire pour accéder à une base de données HyperSQL DB.    
+Le projet `glassfish-embedded-all` comprend Glassfish 4.0 (l'implémentation de
+référence de JEE) et toutes ses dépendances. Le projet
+`org.eclipse.persistence.jpa` sera utile lors de l'utilisation de *Java
+Persistence API*. Quand au projet `hsqldb`, ceci contient le driver nécessaire
+pour accéder à une base de données HyperSQL DB.    
 
-## Plugins pour la compilation et l'exécution 
+## *Plugins pour la compilation* et l'exécution 
 
 
-Pour pouvoir compiler nôtre projet, nous pouvons nous appuyer sur un plug-in *maven-compiler-plugin*, 
-comme indiqué ci-dessous entre les balises `<build> </build>`. 
+Pour pouvoir compiler notre projet, nous pouvons nous appuyer sur un plugin
+*maven-compiler-plugin*, comme indiqué ci-dessous entre les balises `<build>
+</build>`. 
 
 ```xml
 <project ...>
@@ -149,7 +156,7 @@ comme indiqué ci-dessous entre les balises `<build> </build>`.
 </project>
 ```
 
-Nous pouvons également s'appuyer sur *exec-maven-plugin* pour exécuter un code Java. 
+Nous pouvons également nous appuyer sur *exec-maven-plugin* pour exécuter un code Java. 
 
 ```xml
 <build>
@@ -199,10 +206,10 @@ utiliser le plug-in *maven-failsafe-plugin*.
 ```
 -->
 
-Enfin, nous aurons aussi besoin de lancer un serveur web *embedded* (c-a-d dans
-le même processus de la JVM) contenant tous les modules (pages de presentation
-web, entities classes, EJBs, etc.). Pour ce faire, nous allons nous appuyer sur
-le plug-in *maven-embedded-glassfish-plugin*. 
+Enfin, nous aurons aussi besoin de lancer un serveur web *embedded* (c-à-d dans
+le même processus de la JVM) contenant tous les modules (pages de présentation
+web, *session beans*, etc.). Pour ce faire, nous allons reposer sur
+le *plugin* *maven-embedded-glassfish-plugin*. 
 
 ```xml
  <build>
@@ -234,20 +241,47 @@ le plug-in *maven-embedded-glassfish-plugin*.
   </build>
 </project>
 ```
+### Profiles 
+
+Comme nous allons utiliser *maven-embedded-glassfish-plugin* et pour compiler
+nos projets et pour lancer un serveur web où nous pourrons déployer nos
+applications, la portée de la dépendance est différente selon l'usage. Ainsi,
+nous définissons une propriété précisant la portée (*compile* par défaut) ainsi
+qu'un profile d'exécution qui change la valeur de cette propriété et par
+conséquent la portée de la dépendance  quand il s'agit d'un lancement d'un
+serveur *Glassfish*. 
+
+```xml
+<project>
+   ...
+   <properties>
+       <glassfish.scope>compile</glassfish.scope>
+   </properties>
+   <profiles>
+      <profile>
+         <id>server</id>
+         <properties>
+            <glassfish.scope>provided</glassfish.scope>
+         </properties>
+      </profile>
+   </profiles>
+</project>
+```
+
 
 ## Télécharger les dépendances, compiler et packager le projet
 
 A l'heure actuelle, nous n'avons aucun code à compiler, mais nous
-pouvons quand même télécharger les dépendences en avance à fin d'éviter 
-des saturations du réseau pendant les séances de cours/TD/TP. Pour ce faire 
+pouvons quand même télécharger les dépendances en avance afin d'éviter 
+des saturations du réseau pendant les séances de cours/TD/TP. Pour ce faire, 
 il faut tout simplement exécuter la commande `mvn install` depuis la 
-racine de nôtre projet. Sur Eclipse, il suffit de *cliquer droit* sur le projet, ensuite
+racine de notre projet. Sur Eclipse, il suffit de *cliquer droit* sur le projet, ensuite
  *Run As* > *Maven install*, comme illustré dans la figure ci-dessous.
 
 ![alt text](./step5.png)
  
-Une fois la compilation, packaging et installation terminées, vous devrez avoir un message 
-de compilation réussie.
+Une fois la compilation, le packaging et l'installation terminés, vous devriez avoir un message 
+de compilation réussie : `BUILD SUCCESS`.
 
 ```
 ...
