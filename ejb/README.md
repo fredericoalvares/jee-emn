@@ -267,8 +267,6 @@ En ligne de commande :
 mvn -pserver clean package embedded-glassfish:run
   ```
 
-
-
 Sur Eclipse, il faut procéder comme suit :
 
 1. Clique droit sur le projet > Run As  > Maven Build...
@@ -377,12 +375,12 @@ Créez une interface `ShoppingCartService` dans le package `fr.emn.gsi2015.books
   6. `void checkout()` 
 
 
-### Définition du *session bean*
+### Définition du *bean* de session
 
 1. Créez une classe *Session Bean* `ShoppingCartEJB` dans le package `fr.emn.gsi2015.bookstore.business`. 
 2. Comme nous avons besoin de garder l'état des cliente, nous devons définir notre *bean* comme étant *Stateful* avec l'annotation `@Stateful`. 
 3. Enfin, à l'aide de l'annotation `@StatefulTimeout`, indiquez qu'au bout de 15 sans activité le *session bean* doit être détruit
-3. Définissez une variable d'instance (c-a-d l'état du *session bean*) du type `List<Book>` pour stocker les livres du panier
+3. Définissez une variable d'instance (c-à-d l'état du *bean* de session) du type `List<Book>` pour stocker les livres du panier
 4. Implémentez les méthodes définies dans l'interface `BookLocalService`
 5. A l'aide de l'annotation `@Remove`, précisez que lors de l'exécution de la méthode `checkout` le *session bean* doit être détruit. 
  
@@ -443,7 +441,8 @@ public class ShoppingCartEJB implements ShoppingCartService {
         public void checkout() {
             cartItems.clear();
         }        
-}```
+}
+```
 
 ### Mise en œuvre d'un client local
 
