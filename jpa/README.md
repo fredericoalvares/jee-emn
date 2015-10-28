@@ -451,6 +451,7 @@ public class Main {
 }
 ```
 
+
 ## Compilation et exécution 
 
 Nous allons utiliser Maven pour compiler et exécuter notre classe principale. Pour ce faire, il y a deux possibilités : 
@@ -460,7 +461,7 @@ Nous allons utiliser Maven pour compiler et exécuter notre classe principale. P
   1. Clique droit sur le projet > Run As > Maven build... ![alt text](./compile_and_run1.png)
   2. Donnez un nom à cette configuration (ex. : bookstore compile and run - Persistance )
   3. Précisez les *Goals* de Maven : `clean compile exec:java` ![alt text](./compile_and_run2.png)
-  4. Cliquez sur *Add...* pour ajouter un paramètre. Ensuite entrez la valeur `fr.emn.gsi2015.jpa.Main` pour le paramètre `exec.mainClass`. Ceci (dans ce cas notre classe principale) est utilisé par le plugin *exec-maven-plugin*.                
+  4. Cliquez sur *Add...* pour ajouter un paramètre. Ensuite entrez la valeur `fr.emn.gsi2015.persistence.Main` pour le paramètre `exec.mainClass`. Ceci (dans ce cas notre classe principale) est utilisé par le plugin *exec-maven-plugin*.                
 
  ![alt text](./compile_and_run3.png)
   5. Cliquez sur *Apply* et puis sur *Run*
