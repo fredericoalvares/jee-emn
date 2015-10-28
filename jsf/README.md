@@ -1,4 +1,4 @@
-# Java Server Faces
+# Tutoriel 4 : Java Server Faces
 
 Le but de ce tutoriel est de montrer comment le *framework* Java Server Faces (JSF) 
 peut être utiliser pour concevoir une couche de présentation dans le cadre d'une application
@@ -7,7 +7,6 @@ Java EE.
 ## Pages statique vs. dynamique
 
 La différence majore entre une page statique et une page dynamique est que la
-deuxième construit son contenu à chaque requête en fonction
 des règles métier, données stockes dans la base de données etc, alors que pour la première
 le contenu reste statique.   
 
@@ -16,7 +15,7 @@ répertoire `webapp` d'un serveur JEE.
 
 ### Contenu statique
 
-1. Créez une page `menu.xhtml` dans le répertoire `src/main/webapp`
+1. Créez une page `welcome.xhtml` dans le répertoire `src/main/webapp`
 2. Ajoutez un titre et un 
 3. Créez une liste de liens : 
    * Enregistrer un livre (liens vers `newBook.faces`)
@@ -45,9 +44,9 @@ répertoire `webapp` d'un serveur JEE.
 </html>
   ```
 5. Lancez le serveur avec Maven 
-6. Une fois le serveur lancé, ouvrez votre navigateur et tapez l'adresse : `http://localhost:8085/bookstore/menu.xhtml`. 
+6. Une fois le serveur lancé, ouvrez votre navigateur et tapez l'adresse : `http://localhost:8085/bookstore/welcome.xhtml`. 
 
-![alt text](./menu.png)
+![alt text](./welcome.png)
 
 
 ** OBS : ** les extensions requêtes à des fichiers \*.faces sont traitées par le 
@@ -65,16 +64,17 @@ pages web.
 1. Créez le package `fr.emn.gsi2015.bookstore.presentation`.
 2. Créez la classe `BookController` dans ce package.
 3. Utilisez l'annotation `@Named` pour que le *bean* soit visible depuis les pages/*views*. 
-4. Utilisez l'annotation `@RequestScoped` pour indiquer que ce *bean* est valide dans la portée d'une requête. Nous pouvons faire une analogie avec les *Stateful Session Beans*. 
+4. Utilisez l'annotation `@RequestScoped` pour indiquer que ce *bean* est valide dans la portée d'une requête. Nous pouvons faire une analogie avec les *Stateless Session Beans*. 
   ```java
 @Named
-@RequestScoped
+@SessionScoped
 public class BookController {
    ...
 }
   ```
-5. Définissez une variable d'instance du type `BookLocalService` permettant l'accès local l'EJB `BookEJB`. Pour faciliter cette tâche, 
-vous pouvez reposer sur l'injection de dépendances en utilisant l'annotation `@Inject`.  Comme variables d'instance, défini.
+5. Définissez deux variables d'instance : une du type `BookLocalService` et l'autre 
+du type `ShoppingCartService`, permettant l'accès local aux *beans* de la couche métier lié au panier et aux livres. 
+Pour faciliter la gestion de dépendances, vous pouvez reposer sur l'injection de dépendances en utilisant l'annotation `@Inject`. 
   ```java
 @Inject
 private BookLocalService bookEJB;        
@@ -82,7 +82,7 @@ private BookLocalService bookEJB;
 6. Définissez une autre variable d'instance du type `Book` pour faciliter le passage de paramètres depuis/vers les pages. Implémentez 
 les méthodes *getters* et *setters* pour cette variable.
  
-7. Définissez une méthode `void doCreateBook()` décrivant une action de création en renvoyant le client vers la page `listBooks.xhtml`.
+7. Définissez une méthode `String doCreateBook()` décrivant une action de création en renvoyant le client vers la page `listBooks.xhtml`.
 ```java
 public String doCreateBook() {
    book = bookEJB.createBook(book);
@@ -154,7 +154,6 @@ la page `viewBook.xhtml`. Ceci montre les détails du livre en question.-->
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
         xmlns:h="http://xmlns.jcp.org/jsf/html"
-        xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
         xmlns:f="http://java.sun.com/jsf/core">
 <h:head>
         <title>Liste de livres</title>
@@ -242,8 +241,7 @@ Votre page devrait ressembler au code ci-dessous :
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-        xmlns:h="http://xmlns.jcp.org/jsf/html"
-        xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+        xmlns:h="http://xmlns.jcp.org/jsf/html">
    <h:head>
         <title>Enregistrer un livre</title>
    </h:head>
@@ -343,11 +341,12 @@ détails d'un livre dont l'identifiant (`idBook`) est transmis depuis la page
 3. Comme pour la page `newBook.xhtml`, vous pouvez utiliser la balise `panelGrid` avec deux colonnes : une pour le nom de l'attribut et l'autre pour sa valeur. Ceci peut être récupérée directement en accédant à  `BookController`.
 4. Ajoutez un lien (bouton) permettant ajouter le livre dans le panier. L'ajout 
 sera effectivement traité dans la page `shoppingCart.xhtml`
-```xhtml
+ 
+  ```xhtml
 <h:link outcome="shoppingCart.xhtml" value="Ajouter au panier">
      <f:param name="idBook" value="#{bookController.book.id}" />
 </h:link>
-```
+  ```
 5. Comme pour les autres pages, ajouter une liste de liens en bas de la page.
 
 ```xhtml
@@ -355,7 +354,6 @@ sera effectivement traité dans la page `shoppingCart.xhtml`
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
         xmlns:h="http://xmlns.jcp.org/jsf/html"
-        xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
         xmlns:f="http://java.sun.com/jsf/core">
 
 <h:head>
@@ -385,12 +383,19 @@ sera effectivement traité dans la page `shoppingCart.xhtml`
       <h:outputText value="#{bookController.book.nbOfPage}" />
 
       <h:outputLabel value="Illustrations : " />
-      <h:outputLabel
-              value="#{(bookController.book.illustrations) ? 'oui' :  'non'}" />
+      <h:outputLabel value="#{(bookController.book.illustrations) ? 'oui' :  'non'}" />
    </h:panelGrid>
    <h:link outcome="shoppingCart.xhtml" value="Ajouter au panier">
            <f:param name="idBook" value="#{bookController.book.id}" />
    </h:link>
+   <hr />
+    <h2>Liens</h2>
+    <ul>
+        <li><a href="newBook.faces">Enregistrer un livre</a></li>
+        <li><a href="listBooks.faces">Lister les livres</a></li>
+        <li><a href="shoppingCart.faces">Mon panier</a><br /></li>
+        <li><a href="listViews.faces">Dernières visualisations</a></li>
+    </ul>
 </h:body>
 </html>
 ```
@@ -401,17 +406,396 @@ la page des détails d'un livre.
   ![alt text](./viewBook.png)
 
 
-
-### Panier *RequestScoped*
-
+### Panier
 
 
+#### *Managed Bean* 
 
-### *SessionScoped*
+Nous pouvons procéder de façon similaire pour mettre en œuvre le panier du magasin. Nous avons donc besoin 
+d'implémenter un *Managed Bean* pour interagir avec le(s) page(s) web.
+
+1. Créez la classe `BookController` dans le package `fr.emn.gsi2015.bookstore.presentation`.
+2. Utilisez l'annotation `@Named` pour que le *bean* soit visible depuis les pages. 
+3. Utilisez l'annotation `@SessionScoped` pour indiquer que ce *bean* est valide dans la portée d'une session. 
+Ainsi comme pour les *Managed Beans* annotés avec `@RequestScoped` et les *Stateful Session Beans*, nous pouvons 
+faire une analogie avec les l'annotation `@SessionScoped` et les *Stateful Session Beans*.
+4. Afin de permettre la passivation, les `@SessionScoped` *Managed Beans* doivent aussi implémenter l'interface `Serializable`.
+ 
+  ```java
+@Named
+@SessionScoped
+public class ShoopingCartController implements Serializable {
+}
+  ```
+5. Définissez deux variables d'instance : une du type `BookLocalService` et l'autre du type `ShoppingCartService` permettant l'accès 
+aux services de la couche métier liés au panier et aux livres. 
+Encore une fois, vous pouvez utiliser de l'injection pour faciliter la gestion de dépendances.Pour faciliter la gestion des dépendances.
+  
+  ```java
+@Inject
+private BookLocalService bookEJB;       
+@Inject 
+private ShoppingCartService shoppingCartEJB;        
+  ```
+6. Comme pour la classe `BookController`, définissez une autre variable d'instance du type `Book` et les *getters*  et *setters* associées. 
+7. Rendez accessible aussi (par les méthodes *getters* et *setters*) la
+   variable d'instance tu type `ShoppingCartService` pour que l'on puisse
+l'utiliser depuis les pages.
+8. Définissez une méthode `void doAddToShoppingCart()` décrivant une action
+   d'ajout d'un livre au panier. 
+
+  ```java
+public void doAddToShoppingCart() {
+    book = bookEJB.findBookById(book.getId());
+    shoppingCartEJB.addItem(book);
+}
+  ```
+Votre classe devrait ressembler à celle-ci :
+ 
+```java
+package fr.emn.gsi2015.bookstore.presentation;
+
+import java.io.Serializable;
+
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import fr.emn.gsi2015.bookstore.business.BookLocalService;
+import fr.emn.gsi2015.bookstore.business.ShoppingCartService;
+import fr.emn.gsi2015.bookstore.persistence.Book;
+
+@Named
+@SessionScoped
+public class ShoppingCartController implements Serializable {
+
+     @Inject
+     private ShoppingCartService shoppingCartEJB;
+     @Inject
+     private BookLocalService bookEJB;
+
+     private Book book = new Book();
+
+     public String doAddToShoppingCart() {
+             book = bookEJB.findBookById(book.getId());
+             shoppingCartEJB.addItem(book);
+             return "";
+     }
+
+     public Book getBook() {
+             return book;
+     }
+
+     public void setBook(Book book) {
+             this.book = book;
+     }
+
+     public ShoppingCartService getShoppingCartEJB() {
+             return shoppingCartEJB;
+     }
+
+     public void setShoppingCartEJB(ShoppingCartService shoppingCartEJB) {
+             this.shoppingCartEJB = shoppingCartEJB;
+     }
+}
+
+``` 
+ 
+Nous pouvons maintenant implémenter la page affichant les livres dans le panier du client.
+
+1. Créez la page `shoppingCart.xhtml` dans `src/main/webapp`.
+2. Ajoutez le titre `Mon panier` à la page et au corps de la page. 
+3. Procédez de façon similaire à comme vous avez fait pour récupérez les paramètres envoyés 
+depuis une autre page. Dans ce cas là nous voulons récupérer l'identifiant du livre envoyé depuis 
+la page `viewBook.xhtml` inclue dans liens `Ajouter au panier`. Une fois le paramètre récupéré, 
+nous voulons effectuer l'action d'ajout en faisant appel à la méthode `doAddToShoppingCart` de 
+`ShoppingCartController`. 
+
+```xhtml
+  <f:metadata>
+     <f:viewParam name="idBook" value="#{shoppingCartController.book.id}"/>
+     <f:viewAction action="#{shoppingCartController.doAddToShoppingCart}"/>
+  </f:metadata>
+```
+4. Ajoutez un message `Votre panier contiens X livre(s).`
+5. Comme pour la page `listBooks.xhtml`, vous pouvez utiliser la balise `dataTable` avec deux colonnes : 
+une pour le titre du libre et l'autre pour le prix. 
+5. Affichez le prix total juste après le tableau.
+6. Comme pour les autres pages, ajouter une liste de liens en bas de la page.
+
+```xhtml
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://xmlns.jcp.org/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+        <title>Votre panier</title>
+</h:head>
+<h:body>
+    <f:metadata>
+        <f:viewParam name="idBook" value="#{shoppingCartController.book.id}" />
+        <f:viewAction action="#{shoppingCartController.doAddToShoppingCart}" />
+    </f:metadata>
+    <h1>
+            Votre panier contient
+            <h:outputText
+                    value="#{shoppingCartController.shoppingCartEJB.getNumberOfItems()}" />
+            livre(s)
+    </h1>
+    <hr />
+    <h:dataTable
+            value="#{shoppingCartController.shoppingCartEJB.getItems()}"
+            var="book" border="1">
+       <h:column>
+           <f:facet name="header">
+                   <h:outputText value="Title" />
+           </f:facet>
+           <h:link outcome="viewBook.xhtml" value="#{book.title}">
+                   <f:param name="idBook" value="#{book.id}" />
+           </h:link>
+       </h:column>
+       <h:column>
+         <f:facet name="header">
+                 <h:outputText value="Price" />
+         </f:facet>
+         <h:outputText value="#{book.price}" />
+       </h:column>
+
+    </h:dataTable>
+    <h:panelGrid columns="2">
+        <h:outputLabel value="Total : " />
+        <h:outputText
+                    value="#{shoppingCartController.shoppingCartEJB.getTotal()}" />
+    </h:panelGrid>
+
+    <hr />
+    <h2>Liens</h2>
+    <ul>
+        <li><a href="newBook.faces">Enregistrer un livre</a></li>
+        <li><a href="listBooks.faces">Lister les livres</a></li>
+        <li><a href="shoppingCart.faces">Mon panier</a><br /></li>
+        <li><a href="listViews.faces">Dernières visualisations</a></li>
+    </ul>
+</h:body>
+</html>
+```
+Lancez le serveur avec Maven et testez le panier en ajoutant un livre et affichant le contenu du panier. Essayez avec deux navigateurs différents simulant deux clients et vérifiez que chaque client a son propre panier.  
+
+  ![alt text](./shoppingCart.png)
 
 
+### Livres vus recemment 
 
-### *ApplicationScoped*
+Dernièrement, nous allons implémenter une page permettant afficher les livres vues récemment par tous les clients. 
+
+#### *Application Scoped Managed Bean*
 
 
-### *Templates*
+1. Créez la classe `LastViewsController` dans le package `fr.emn.gsi2015.bookstore.presentation`.
+2. Utilisez l'annotation `@Named` pour que le *bean* soit visible depuis les pages. 
+3. Utilisez l'annotation `@ApplicationScoped` pour indiquer que ce *bean* est valide dans la portée de l'application session. 
+Ici l'analogie est avec les *Session Beans* du type *Singleton*. Cela veut dire que les objets créés au 
+sein du *Managed Beans* et le *Managed Bean* lui même sont les même pour toute l'application et pour tout le temps de vie de 
+application indépendamment du client ou des requêtes.  
+4. Définissez deux variables d'instance : une du type `BookLocalService` et l'autre du type `LastViewsService`.
+6. Comme pour las classes `BookController` et `ShoppingCartController`, définissez une autre variable d'instance du type `Book` et les *getters*  et *setters* associées. 
+7. Rendez accessible aussi la variable d'instance tu type `LastViewsService` pour que l'on puisse
+l'utiliser depuis les pages.
+8. Définissez une méthode `void doAddToLastViews()` décrivant une action
+   d'ajout d'un livre aux à la liste de livres visualisés récemment.  
+
+Voici comme votre classe devrait ressembler : 
+
+
+```java
+package fr.emn.gsi2015.bookstore.presentation;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import fr.emn.gsi2015.bookstore.business.BookLocalService;
+import fr.emn.gsi2015.bookstore.business.LastViewsService;
+import fr.emn.gsi2015.bookstore.persistence.Book;
+
+@Named
+@ApplicationScoped
+public class LastViewsController  {
+    @Inject
+    private LastViewsService lastViewsEJB;
+    
+    @Inject
+    private BookLocalService bookEJB;
+
+    private Book book = new Book();
+
+    public void doAddToLastViews() {
+            book = bookEJB.findBookById(book.getId());
+            lastViewsEJB.addLastViewed(book);
+    }
+
+    public Book getBook() {
+            return book;
+    }
+
+    public void setBook(Book book) {
+            this.book = book;
+    }
+
+    public LastViewsService getLastViewsEJB() {
+            return lastViewsEJB;
+    }
+
+    public void setLastViewsEJB(LastViewsService lastViewsEJB) {
+            this.lastViewsEJB = lastViewsEJB;
+    }
+}
+```
+
+#### Page
+
+Avant d'implémenter la page `lastViews.xhtml` nous devons d'avantage modifier
+la page `viewBook.xhtml` pour que l'action `doAddToLastViews` soit exécuté à
+chaque fois qu'un livre est visualisé. Il faut faire pareil à l'action 
+`doFindBookById` de `BookController` : récupérer le `idBook` et l'affecter à l'attribut
+`book.id` de `LastViewsController`, ensuite exécuter l'action `doAddToLastViews`. 
+
+```html
+<f:metadata>
+   <f:viewParam name="idBook" value="#{bookController.book.id}" />
+   <f:viewAction action="#{bookController.doFindBookById}" />
+   <f:viewParam name="idBook" value="#{lastViewsController.book.id}" />
+   <f:viewAction action="#{lastViewsController.doAddToLastViews}" />
+</f:metadata>```
+
+L'implémentation de la page `lastViews.xhtml` suit les mêmes étapes de la page `listBooks.html`. 
+La seule différence étant la valeur de l'attribut `value` de la balise `dataTable` qui devrait 
+faire référence plutôt à `vlastViewsController.lastViewsEJB.getLastViewed()`. 
+
+```xhtml
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://xmlns.jcp.org/jsf/html"
+        xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Livres vus récemment</title>
+</h:head>
+<h:body>
+    <h1>Livres vus récemment</h1>
+    <hr />
+    <h:dataTable
+            value="#{lastViewsController.lastViewsEJB.getLastViewed()}" var="book"
+            border="1">
+      <h:column>
+              <f:facet name="header">
+                      <h:outputText value="Titre" />
+              </f:facet>
+              <h:link outcome="viewBook.xhtml" value="#{book.title}">
+                      <f:param name="idBook" value="#{book.id}" />
+              </h:link>
+      </h:column>
+      <h:column>
+              <f:facet name="header">
+                      <h:outputText value="Prix" />
+              </f:facet>
+              <h:outputText value="#{book.price}" />
+      </h:column>
+    </h:dataTable>
+    <hr />
+    <h2>Liens</h2>
+    <ul>
+      <li><a href="newBook.faces">Enregistrer un livre</a></li>
+      <li><a href="listBooks.faces">Lister les livres</a></li>
+      <li><a href="shoppingCart.faces">Mon panier</a><br /></li>
+      <li><a href="listViews.faces">Dernières visualisations</a></li>
+    </ul>
+</h:body>
+</html>```
+
+Lancez le serveur et testez la page des livres récemment vus en voyant les
+détails des livres. Essayez avec deux navigateurs différents pour simuler deux
+clients et confirmez que la page `lastViews.xhtml` affiche les mêmes livres
+pour les deux clients.  
+
+  ![alt text](./lastViews.png)
+
+## Templates
+
+Vous avez peut-être remarqué que il y beaucoup de redondance dans les codes des pages xhtml. En effet, 
+les pages ont une mise en forme très similaire et nous aurions pu factoriser une partie no négligeable 
+du code.   
+
+Nous pouvons définir un *template* contenant les éléments en commun à toutes
+nos pages. Comme vous pouvez remarquer dans le code ci-dessous, la balise
+`ui:insert` peut sert à préciser les endroits personnalisables du code, par
+exemple, les titres ainsi que le contenu (`dataTable`, `panelGrid`, etc.).  
+
+```xhtml
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+        xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+    <title><ui:insert name="title">Default title</ui:insert></title>
+</h:head>
+<h:body>
+    <h1>
+       <ui:insert name="title">Default title</ui:insert>
+    </h1>
+    <hr />
+    <ui:insert name="content">Default content</ui:insert>
+    <hr />
+    <ul>
+       <li><a href="newBook.faces">Enregistrer un livre</a></li>
+       <li><a href="listBooks.faces">Lister les livres</a></li>
+       <li><a href="shoppingCart.faces">Mon panier</a><br /></li>
+       <li><a href="listViews.faces">Dernières visualisations</a></li>
+    </ul>
+</h:body>
+</html>
+```
+Dans chaque page nous pouvons donc faire référence au *template* à l'aide de la 
+balise `ui:composition`. Comme vous pouvez le voir, notre *template* est défini 
+dans le fichier `layout.xhtml`. Il ne reste plus qu'à définir les points 
+personnalisables avec la balise `ui:define`.   
+
+```xhtml
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://xmlns.jcp.org/jsf/html"
+      	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+        xmlns:f="http://java.sun.com/jsf/core">
+  <ui:composition template="layout.xhtml">
+     <ui:define name="title">Liste de livres</ui:define>
+     <ui:define name="content">
+         <h:dataTable value="#{bookController.doFindBooks()}" var="book"
+                 border="1">
+           <h:column>	
+              <f:facet name="header">
+                   <h:outputText value="Titre" />
+              </f:facet>
+              <h:link outcome="viewBook.xhtml" value="#{book.title}">
+                   <f:param name="idBook" value="#{book.id}" />
+              </h:link>
+           </h:column>
+           <h:column>
+               <f:facet name="header">
+                   <h:outputText value="Prix" />
+               </f:facet>
+               <h:outputText value="#{book.price}" />
+           </h:column>
+
+         </h:dataTable>
+     </ui:define>
+  </ui:composition>
+</html>
+```
+
+Vous pouvez modifiez les autres pages en faisant référence au même *template* afin d'avoir 
+un code factorisé. 
+
+
